@@ -16,7 +16,7 @@
 // @connect      integrate.api.nvidia.com
 // @match        *://*/*
 // @run-at       document-start
-// @version      2026.1.10
+// @version      2026.2
 // @icon         https://raw.githubusercontent.com/PoopSoftWare/dhub/refs/heads/main/trasdesk.png
 // @tag          translation
 // @tag          text selection
