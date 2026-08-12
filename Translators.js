@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         TransDesk – Мгновенно переводите любой выделенный текст
-// @description  Мгновенно переводите выделенный текст с помощью умной кнопки или сочетания Ctrl+L. Автоматически определяет язык и переводит его на выбранный вами язык.
+// @name         TransDesk 
+// @description  1
 
 // @namespace    TransDesk
 // @author       TransDesk
@@ -16,7 +16,7 @@
 // @connect      integrate.api.nvidia.com
 // @match        *://*/*
 // @run-at       document-start
-// @version      2026.2
+// @version      2026.2.01
 // @icon         https://raw.githubusercontent.com/PoopSoftWare/dhub/refs/heads/main/trasdesk.png
 // @tag          translation
 // @tag          text selection
@@ -28,8 +28,6 @@
 // @tag          language
 // @tag          multilingual
 
-// @downloadURL https://update.greasyfork.org/scripts/536284/Ultimate%20Text%20Selection%20Translator%20%E2%80%93%20Instantly%20Translate%20Any%20Selected%20Text.user.js
-// @updateURL https://update.greasyfork.org/scripts/536284/Ultimate%20Text%20Selection%20Translator%20%E2%80%93%20Instantly%20Translate%20Any%20Selected%20Text.meta.js
 // ==/UserScript==
 
 /*
@@ -268,7 +266,7 @@ limitations under the License.
     const utstSupportedUiLanguages = ['en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'zh-CN', 'ja', 'ar', 'hi', 'ko', 'tr', 'nl', 'pl', 'id', 'vi', 'uk', 'he'];
     const utstLanguageNames = {
         'en': { 'auto': 'Detect', 'en': 'English', 'fr': 'French', 'es': 'Spanish', 'de': 'German', 'it': 'Italian', 'pt': 'Portuguese', 'ru': 'Russian', 'zh-CN': 'Chinese (Simplified)', 'ja': 'Japanese', 'ar': 'Arabic', 'hi': 'Hindi', 'ko': 'Korean', 'tr': 'Turkish', 'nl': 'Dutch', 'pl': 'Polish', 'id': 'Indonesian', 'vi': 'Vietnamese', 'uk': 'Ukrainian', 'he': 'Hebrew', 'errors': { 'noText': 'No text selected', 'translation': 'Translation error', 'connection': 'Connection error' }, 'tooltips': { 'listenTranslated': 'Listen to translated text', 'listenOriginal': 'Listen to original text' }, 'themes': { 'blue': 'Blue', 'dark': 'Dark', 'light': 'Light' }, 'bubble': { 'hideSite': 'Hide on this site', 'hideGlobal': 'Hide globally', 'closeTitle': 'Hide selection bubble', 'translateTitle': 'Translate selected text', 'hideOn': 'Hide on' }, 'overlay': { 'title': 'Fullscreen Translator', 'source': 'Source text', 'target': 'Translated text', 'translate': 'Translate', 'open': 'Fullscreen', 'sourceLangLabel': 'Source language', 'targetLangLabel': 'Target language' }, 'dragHandleLabel': 'Move', 'settingsTitle': 'Settings', 'settingsDefaultLabel': 'Default translation language:', 'settingsToolLabel': 'Tool language:', 'navigator': 'Browser language', 'settingsThemeLabel': 'Theme:', 'settingsBubbleLabel': 'Selection Bubble', 'settingsBlacklistLabel': 'Blacklist', 'settingsBlacklistAdd': 'Add', 'settingsBlacklistEmpty': 'No blocked sites.', 'settingsShortcutLabel': 'Shortcut:', 'settingsShortcutListening': 'Press keys...', 'settingsShortcutHelp': 'Click, then press a combination with Ctrl, Alt, Shift, or Cmd.', 'settingsShortcutInvalid': 'Add at least Ctrl, Alt, Shift, or Cmd.', 'settingsShortcutSaved': 'Shortcut saved.', 'settingsShortcutReset': 'Reset shortcut' },
-        'ru': { 'auto': 'Определить', 'en': 'Английский', 'fr': 'Французский', 'es': 'Испанский', 'de': 'Немецкий', 'it': 'Итальянский', 'pt': 'Португальский', 'ru': 'Русский', 'zh-CN': 'Китайский (упрощённый)', 'ja': 'Японский', 'ar': 'арабский', 'hi': 'хинди', 'ko': 'корейский', 'tr': 'турецкий', 'nl': 'нидерландский', 'pl': 'польский', 'id': 'индонезийский', 'vi': 'вьетнамский', 'uk': 'украинский', 'he': 'иврит', 'errors': { 'noText': 'Текст не выделен', 'translation': 'Ошибка перевода', 'connection': 'Ошибка соединения' }, 'tooltips': { 'listenTranslated': 'Прослушать переведённый текст', 'listenOriginal': 'Прослушать оригинальный текст' }, 'themes': { 'blue': 'Синий', 'dark': 'Тёмный', 'light': 'Светлый' }, 'bubble': { 'hideSite': 'Скрыть на этом сайте', 'hideGlobal': 'Скрыть везде', 'closeTitle': 'Скрыть пузырь выделения', 'translateTitle': 'Перевести выделенный текст', 'hideOn': 'Скрыть на' }, 'overlay': { 'title': 'Полноэкранный переводчик', 'source': 'Исходный текст', 'target': 'Переведенный текст', 'translate': 'Переводить', 'open': 'Полноэкранный', 'sourceLangLabel': 'Исходный язык', 'targetLangLabel': 'Целевой язык' }, 'dragHandleLabel': 'Переместить', 'settingsTitle': 'Настройки', 'settingsDefaultLabel': 'Язык перевода по умолчанию:', 'settingsToolLabel': 'Язык интерфейса:', 'navigator': 'Язык браузера', 'settingsThemeLabel': 'Тема:', 'settingsBubbleLabel': 'Пузырь выбора', 'settingsBlacklistLabel': 'Черный список', 'settingsBlacklistAdd': 'Добавлять', 'settingsBlacklistEmpty': 'Никаких заблокированных сайтов.', 'settingsShortcutLabel': 'Сочетание клавиш:', 'settingsShortcutListening': 'Нажмите клавиши...', 'settingsShortcutHelp': 'Нажмите, затем введите сочетание с Ctrl, Alt, Shift или Cmd.', 'settingsShortcutInvalid': 'Добавьте хотя бы Ctrl, Alt, Shift или Cmd.', 'settingsShortcutSaved': 'Сочетание сохранено.', 'settingsShortcutReset': 'Сбросить сочетание' }
+        'ru': { 'auto': 'Определить', 'en': 'Английский', 'fr': 'Французский', 'es': 'Испанский', 'de': 'Немецкий', 'it': 'Итальянский', 'pt': 'Португальский', 'ru': 'Русский', 'zh-CN': 'Китайский (упрощённый)', 'ja': 'Японский', 'ar': 'арабский', 'hi': 'хинди', 'ko': 'корейский', 'tr': 'турецкий', 'nl': 'нидерландский', 'pl': 'польский', 'id': 'индонезийский', 'vi': 'вьетнамский', 'uk': 'украинский', 'he': 'иврит', 'errors': { 'noText': 'Текст не выделен', 'translation': 'Ошибка перевода', 'connection': 'Ошибка соединения' }, 'tooltips': { 'listenTranslated': 'Прослушать переведённый текст', 'listenOriginal': 'Прослушать оригинальный текст' }, 'themes': { 'blue': 'Синий', 'dark': 'Тёмный', 'light': 'Светлый' }, 'bubble': { 'hideSite': 'Скрыть на этом сайте', 'hideGlobal': 'Скрыть везде', 'closeTitle': 'Скрыть пузырь выделения', 'translateTitle': 'Перевести выделенный текст', 'hideOn': 'Скрыть на' }, 'overlay': { 'title': 'Полноэкранный переводчик', 'source': 'Исходный текст', 'target': 'Переведенный текст', 'translate': 'Перевожу..', 'open': 'Полноэкранный', 'sourceLangLabel': 'Исходный язык', 'targetLangLabel': 'Целевой язык' }, 'dragHandleLabel': 'Переместить', 'settingsTitle': 'Настройки', 'settingsDefaultLabel': 'Язык перевода по умолчанию:', 'settingsToolLabel': 'Язык интерфейса:', 'navigator': 'Язык браузера', 'settingsThemeLabel': 'Тема:', 'settingsBubbleLabel': 'Пузырь выбора', 'settingsBlacklistLabel': 'Черный список', 'settingsBlacklistAdd': 'Добавлять', 'settingsBlacklistEmpty': 'Никаких заблокированных сайтов.', 'settingsShortcutLabel': 'Сочетание клавиш:', 'settingsShortcutListening': 'Нажмите клавиши...', 'settingsShortcutHelp': 'Нажмите, затем введите сочетание с Ctrl, Alt, Shift или Cmd.', 'settingsShortcutInvalid': 'Добавьте хотя бы Ctrl, Alt, Shift или Cmd.', 'settingsShortcutSaved': 'Сочетание сохранено.', 'settingsShortcutReset': 'Сбросить сочетание' }
     };
     ['ar', 'hi', 'ko', 'tr', 'nl', 'pl', 'id', 'vi', 'uk', 'he', 'fr', 'es', 'de', 'it', 'pt', 'zh-CN', 'ja'].forEach(lang => {
         if (!utstLanguageNames[lang]) utstLanguageNames[lang] = { ...utstLanguageNames['en'], auto: lang };
@@ -2155,6 +2153,11 @@ limitations under the License.
                 <button id="replySuggestionPoolRefresh" type="button" class="utst-shortcut-capture" style="width:100%;">Обновить базу из GitHub</button>
             </div>
             <div id="replySuggestionPoolStatus" style="font-size:11px; color: rgba(255,255,255,0.5); text-align:center; margin-bottom:8px; min-height:14px;"></div>
+            <label style="display:flex; align-items:center; gap:8px; color:#fff; font-size:12px; cursor:pointer; margin-top:-4px;">
+                <input type="checkbox" id="replySuggestionPoolAutoTranslateToggle" style="cursor:pointer;">
+                В режиме «Только база» переводить шаблон на язык подсказки через Google
+            </label>
+            <div style="font-size: 11px; color: rgba(255,255,255,0.45); margin-bottom: 8px;">Можно писать базу на любом удобном вам языке (например, на русском) — перед показом текст автоматически переведётся на язык подсказки ниже. Выключите, если база уже написана ровно на языке подсказки и перевод не нужен.</div>
 
             <label for="funnelContextUrl" style="color:#fff; font-size:12px;">Raw-URL контекста воронки (необязательно):</label>
             <input type="text" id="funnelContextUrl" class="utst-blacklist-input" placeholder="https://raw.githubusercontent.com/user/repo/main/funnel.md" style="width:100%; box-sizing:border-box;">
@@ -4184,6 +4187,13 @@ limitations under the License.
                 replySuggestionPoolUrlInput.value = GM_getValue('replySuggestionPoolUrl', '');
                 replySuggestionPoolUrlInput.addEventListener('change', () => GM_setValue('replySuggestionPoolUrl', replySuggestionPoolUrlInput.value.trim()));
             }
+            const replySuggestionPoolAutoTranslateToggle = translationBox.querySelector('#replySuggestionPoolAutoTranslateToggle');
+            if (replySuggestionPoolAutoTranslateToggle) {
+                replySuggestionPoolAutoTranslateToggle.checked = GM_getValue('replySuggestionPoolAutoTranslate', true);
+                replySuggestionPoolAutoTranslateToggle.addEventListener('change', () => {
+                    GM_setValue('replySuggestionPoolAutoTranslate', replySuggestionPoolAutoTranslateToggle.checked);
+                });
+            }
             if (replySuggestionVariantModeSelect) {
                 replySuggestionVariantModeSelect.value = GM_getValue('replySuggestionVariantMode', 'random');
                 replySuggestionVariantModeSelect.addEventListener('change', () => GM_setValue('replySuggestionVariantMode', replySuggestionVariantModeSelect.value));
@@ -4882,7 +4892,17 @@ limitations under the License.
                 if (mode === 'pool') {
                     // Чистый режим "База" — без ИИ, всегда случайный вариант из подходящей темы.
                     const picked = match ? pickRandomVariant(match) : null;
-                    finish(picked || 'Подходящий шаблон не найден в базе.', picked ? 'База' : null);
+                    if (!picked) { finish('Подходящий шаблон не найден в базе.', null); return; }
+                    // Шаблоны в базе не обязаны быть на языке подсказки — по умолчанию
+                    // прогоняем через Google (быстро, бесплатно), чтобы результат сразу
+                    // был на нужном языке, даже если сама база написана, например, на русском.
+                    if (GM_getValue('replySuggestionPoolAutoTranslate', true)) {
+                        translateText(picked, 'auto', langCode, (translated) => {
+                            finish((translated && translated !== errors.noText) ? translated : picked, 'База');
+                        }, null, 'google');
+                    } else {
+                        finish(picked, 'База');
+                    }
                     return;
                 }
                 useAiWithVariants(match);
