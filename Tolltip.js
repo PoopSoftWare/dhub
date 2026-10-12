@@ -3,7 +3,7 @@
 // @namespace    KeyDESK
 // @version      8.0
 // @description  Показ непрочитки в ИИ срм
-// @match        *://chat.telegram-agents.ru/*
+// @match        *://chat.telegram-agents.work/*
 // @grant        none
 // ==/UserScript==
 
