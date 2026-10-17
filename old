@@ -1,0 +1,160 @@
+// ==UserScript==
+// @name         Дата непрочитки
+// @namespace    fsafaf
+// @version      1.0.0
+// @description  Показывает текст из поля "Идентификатор" рядом с именем чата в списке. Данные кешируются при открытии чата.
+// @match        https://chat.telegram-agents.work/*
+// @run-at       document-idle
+// @grant        none
+// ==/UserScript==
+
+(function () {
+  'use strict';
+
+  const LS_KEY = 'tp_notes_v1';
+  const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+
+  // ---------- storage ----------
+  let db = { notes: {}, names: {} }; // notes[uuid] = {t, name}, names[name] = uuid
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (raw && raw.notes && raw.names) db = raw;
+  } catch (e) {}
+  let saveTimer = 0;
+  function persist() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(db)); } catch (e) {}
+    }, 200);
+  }
+
+  function setNote(uuid, name, text) {
+    text = (text || '').trim();
+    const prev = db.notes[uuid];
+    if (prev && prev.t === text && prev.name === name) return false;
+    if (!text) delete db.notes[uuid];
+    else db.notes[uuid] = { t: text, name };
+    if (name) db.names[name] = uuid;
+    persist();
+    return true;
+  }
+
+  // ---------- читаем правую панель (открытый чат) ----------
+  function readPanel() {
+    const input = document.querySelector('input[placeholder="ID"]');
+    if (!input) return null;
+    let el = input.parentElement, h6 = null;
+    for (let i = 0; i < 12 && el; i++, el = el.parentElement) {
+      h6 = el.querySelector('h6');
+      if (h6) break;
+    }
+    if (!el || !h6) return null;
+    let uuid = null;
+    for (const s of el.querySelectorAll('span')) {
+      const m = /^ID:\s*([0-9a-f-]{36})/i.exec(s.textContent.trim());
+      if (m) { uuid = m[1].toLowerCase(); break; }
+    }
+    if (!uuid) return null;
+    return { input, uuid, name: h6.textContent.trim() };
+  }
+
+  // Пока пользователь печатает: сохраняем сразу
+  document.addEventListener('input', (e) => {
+    const t = e.target;
+    if (!(t instanceof HTMLInputElement) || t.placeholder !== 'ID') return;
+    const p = readPanel();
+    if (p && p.input === t) { setNote(p.uuid, p.name, t.value); render(); }
+  }, true);
+
+  // При открытии чата значение может подгрузиться не сразу: сохраняем, когда оно устоялось
+  let lastSeen = { uuid: null, val: null, n: 0 };
+  function syncPanel() {
+    const p = readPanel();
+    if (!p) { lastSeen = { uuid: null, val: null, n: 0 }; return; }
+    const v = p.input.value;
+    if (lastSeen.uuid === p.uuid && lastSeen.val === v) lastSeen.n++;
+    else lastSeen = { uuid: p.uuid, val: v, n: 1 };
+    // непустое значение пишем сразу, пустое только если оно стабильно (защита от пустого кадра при загрузке)
+    if ((v && lastSeen.n >= 1) || lastSeen.n >= 3) {
+      if (setNote(p.uuid, p.name, v)) render();
+    }
+  }
+
+  // ---------- вытаскиваем uuid чата из React-fiber элемента списка (если получится) ----------
+  function fiberOf(node) {
+    for (const k in node) if (k.startsWith('__reactFiber$')) return node[k];
+    return null;
+  }
+  function collectUuids(obj, out, depth) {
+    if (!obj || depth > 2) return;
+    if (typeof obj === 'string') { if (UUID_RE.test(obj) && obj.length === 36) out.add(obj.toLowerCase()); return; }
+    if (typeof obj !== 'object') return;
+    if (obj instanceof Node || Array.isArray(obj)) return;
+    let n = 0;
+    for (const k in obj) {
+      if (++n > 40) break;
+      if (k === 'children' || k === 'sx' || k === 'style') continue;
+      let v; try { v = obj[k]; } catch (e) { continue; }
+      collectUuids(v, out, depth + 1);
+    }
+  }
+  function uuidCandidates(item) {
+    const out = new Set();
+    let f = fiberOf(item) || fiberOf(item.firstElementChild || item);
+    for (let i = 0; f && i < 14; i++, f = f.return) collectUuids(f.memoizedProps, out, 0);
+    return out;
+  }
+
+  // ---------- список чатов ----------
+  const CHIP_ATTR = 'data-tp-note';
+
+  const style = document.createElement('style');
+  style.textContent = `
+    [${CHIP_ATTR}] {
+      flex: 0 5 auto; min-width: 0; max-width: 55%;
+      font-size: 0.72rem; line-height: 1.5; font-weight: 600;
+      padding: 0 7px; border-radius: 10px;
+      background: rgba(255,214,102,0.16); color: #ffd666;
+      border: 1px solid rgba(255,214,102,0.35);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }`;
+  document.documentElement.appendChild(style);
+
+  function findItems() {
+    // элементы виртуального списка: div[data-index] с абсолютным позиционированием
+    return document.querySelectorAll('div[data-index][style*="position"]');
+  }
+
+  function noteFor(item, name) {
+    for (const u of uuidCandidates(item)) if (db.notes[u]) return db.notes[u].t;
+    const u = db.names[name];
+    if (u && db.notes[u]) return db.notes[u].t;
+    return '';
+  }
+
+  function render() {
+    for (const item of findItems()) {
+      const ps = item.querySelectorAll('p');
+      const nameP = ps[0];
+      if (!nameP) continue;
+      const row = nameP.parentElement; // flex-контейнер с именем и точкой статуса
+      const name = nameP.firstChild ? nameP.firstChild.textContent.trim() : nameP.textContent.trim();
+      const text = noteFor(item, name);
+      let chip = row.querySelector(':scope > [' + CHIP_ATTR + ']');
+      if (!text) { if (chip) chip.remove(); continue; }
+      if (!chip) {
+        chip = document.createElement('span');
+        chip.setAttribute(CHIP_ATTR, '');
+        row.appendChild(chip);
+      }
+      if (chip.textContent !== text) { chip.textContent = text; chip.title = text; }
+    }
+  }
+
+  // ---------- запуск ----------
+  let raf = 0;
+  const schedule = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; render(); }); };
+  new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+  setInterval(() => { syncPanel(); render(); }, 700);
+  render();
+})();
